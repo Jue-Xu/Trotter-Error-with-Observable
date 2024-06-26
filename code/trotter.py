@@ -190,9 +190,9 @@ def measure_error(r, h_list, t, exact_U, type, rand_states=[], ob=None, pf_ord=2
     else: 
         raise ValueError(f'type={type} is not defined!')
 
-def binary_search_r(r_start, r_end, epsilon, error_measure, step=1, verbose=False):
+def binary_search_r(r_start, r_end, epsilon, error_measure, step=1, comment='', verbose=False):
     # print(f'----binary search r ({error_measure.__name__})----')
-    print(f'----binary search r (r_start={r_start}, r_end={r_end})----')
+    print(f'----[{comment}] binary search r (r_start={r_start}, r_end={r_end})----')
     while error_measure(r_end) > epsilon:
         print("the initial r_end is too small, increase it by 10 times.")
         r_end *= 10

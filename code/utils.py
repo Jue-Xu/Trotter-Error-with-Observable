@@ -20,7 +20,7 @@ import matplotlib.ticker as ticker
 
 from matplotlib.colors import ListedColormap
 
-color_cycle = ["#E64B35FF", "#47B167", "#0A75C7", "#F39B7FFF", "#70699e", "#4DBBD5FF", "#FFAA00"]
+color_cycle = ["#E64B35FF", "#47B167FF", "#0A75C7FF", "#F39B7FFF", "#70699eFF", "#4DBBD5FF", "#FFAA00FF"]
 colors = mpl.cycler(color=color_cycle, alpha=[.9] * len(color_cycle)) 
 
 mpl.rc('axes', prop_cycle=colors)

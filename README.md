@@ -15,11 +15,11 @@ Wenjun Yu, Jue Xu and Qi Zhao, 2024
 <!-- ![Figure](./figs/lightcone.png) -->
 <img src="./figs/lightcone.png" alt="drawing" width="400"/>
 
-More details in [short_time.ipynb](short_time.ipynb) 
+More details in [short_time.ipynb](./code/short_time.ipynb) 
 
 ## Random-input (average-case error) with observables
 ![Figure](./figs/random.png)
-More details in [random_input.ipynb](random_input.ipynb) 
+More details in [random_input.ipynb](./code/random_input.ipynb) 
 
 ## Reference
 - A Theory of Trotter Error, 
