@@ -30,6 +30,8 @@ mpl.rcParams['lines.markersize'] = 10
 plt.rcParams['lines.markeredgecolor'] = 'k'
 mpl.rcParams['lines.linewidth'] = 1.5
 mpl.rcParams['figure.dpi'] = 100
+mpl.rcParams["xtick.direction"] = "in"
+mpl.rcParams["ytick.direction"] = "in"
 
 SMALL_SIZE = 14
 MEDIUM_SIZE = 15  #default 10
