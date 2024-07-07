@@ -271,20 +271,7 @@ class hydrogen_chain_hamiltonian:
             self.pstrs_coeff.append(self.jw.terms[term])
         print(f'# pstr: {len(self.pstrs)}, {self.pstrs}')
 
-        self.h_group = [self.qubit_terms[0]]
-        self.pstr_group = [[{self.pstrs[0]: self.pstrs_coeff[0]}]]
-        # print(self.pstrs[1:])
-        # print(self.qubit_terms[0])
-        for index, pstr in enumerate(self.pstrs[1:]):
-            if pauli_commutator(pstr, self.pstrs[index-1])[1] == 0:
-                self.h_group[-1] += self.qubit_terms[index+1]
-                self.pstr_group[-1].append({pstr: self.pstrs_coeff[index+1]})
-            else:
-                self.h_group.append(self.qubit_terms[index+1])
-                self.pstr_group.append([{pstr: self.pstrs_coeff[index+1]}])
-
-        print(f'# groups: {len(self.h_group)}')
-        print(self.pstr_group)
+        self.h_group = regroup_H(self, verbose=verbose)
 
         if verbose:
             print(f'fermion_ham:\n {self.fermion_hamiltonian}')
@@ -294,6 +281,56 @@ class hydrogen_chain_hamiltonian:
             print(f'grouped Hamiltonian: {self.h_group}')
 
     # return hydrogen_hamiltonian_list
+
+from qiskit.quantum_info import commutator
+def pauli_commutator(pstr0, pstr1):
+    if np.abs(commutator(SparsePauliOp.from_list([(pstr0,1)]), SparsePauliOp.from_list([(pstr1,1)])).simplify().coeffs[0]) == 0:
+        return 0
+    else:
+        return 1
+
+def regroup_H(H, verbose=False):    
+    pstrs = H.pstrs
+    pstrs_coeff = H.pstrs_coeff
+    pstr_dict = dict(zip(pstrs, pstrs_coeff))
+    # pstr_dict = dict(sorted(pstr_dict.items(), key=lambda x: np.abs(x[1]), reverse=True))
+    # print(pstrs)
+    pstrs = sorted(pstrs, key=lambda x: np.abs(pstr_dict[x]), reverse=True)
+    # print(pstrs)
+
+    # groups = []
+    groups = [ [(pstrs[0], pstr_dict[pstrs[0]])] ]
+    # groups = [ [{pstrs[0]: pstr_dict[pstrs[0]]}] ]
+    for pstr in pstrs[1:]: 
+    # for pstr in pstrs: 
+        # print(pstr)
+        # print(groups)
+        # print(SparsePauliOp.from_list([(pstr,1)]))
+        for index, group in enumerate(groups):
+            # temp = [pauli_commutator(pstr, next(iter(item.keys()))) for item in group]
+            temp = [pauli_commutator(pstr, item[0]) for item in group]
+            # temp = [pauli_commutator(pstr, item) for item in group]
+            if verbose: print('temp: ', temp)
+            if sum(temp) == 0:
+                groups[index].append((pstr, pstr_dict[pstr]))
+                # groups[index].append({pstr: pstr_dict[pstr]})
+                break
+            else:
+                if index == len(groups) - 1:
+                    groups.append([(pstr, pstr_dict[pstr])])  
+                    # groups.append([{pstr: pstr_dict[pstr]}])  
+                    break
+            # for item in group:
+                # if not pauli_commutator(pstr, item):
+                #     break
+    # print('groups:', groups)
+    # print(f'# groups {len(groups)}, d={d}')
+    print(f'# groups {len(groups)}')
+    o_list = []
+    for group in groups:
+        o_list.append(SparsePauliOp.from_list([(item[0], item[1]) for item in group]))
+        # o_list.append(SparsePauliOp.from_list([(next(iter(item.keys())), item[next(iter(item.keys()))]) for item in group]))
+    return o_list
 
 def LiH_hamiltonian():
     basis = 'sto-3g'
