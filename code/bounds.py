@@ -3,7 +3,6 @@ from scipy import sparse
 from scipy.linalg import expm
 from numpy.linalg import matrix_power
 import scipy.sparse.linalg as ssla
-import multiprocessing
 
 import numpy as np
 
@@ -248,66 +247,6 @@ def relaxed_lc_bound(r, n, cmm_data, t, ob_type='singl', verbose=False):
 
 #     return err_bound
 
-def lc_tail_bound(r, n, h, t, ob_type='singl', verbose=True):
-    err_bound = 0
-    dt = t/r
-    if verbose: print(f'index={n}, r={r}')
-    if ob_type == 'singl':
-        h_list_z  = lc_group(h, 0, 0, 2*r, verbose=False)
-        c1_cmm_z, c2_cmm_z = nested_commutator_norm(h_list_z) 
-        err_bound = 2 * (c1_cmm_z * dt**3 / 12 + c2_cmm_z * dt**3 / 24)
-    elif ob_type == 'multi_z':
-        h_list_z_list = [lc_group(h, i, i, 2*r+2, verbose=False) for i in range(0, n)]
-        # h_list_z_list = [lc_group(h, i, i, 4*r+1, False) for i in range(0, n)]
-        # h_list_z_list = [lc_group(h, i, i, 2*r, False) for i in range(0, n)]
-        tail_cmm_data = np.array([nested_commutator_norm(h_list_z) for h_list_z in h_list_z_list])
-        err_bound = 2 * (sum(tail_cmm_data[:, 0])*dt**3/12 + sum(tail_cmm_data[:, 1])*dt**3/24) / n
-    elif ob_type == 'multi_zz':
-        h_list_zz_list = [lc_group(h, i, i+1, 2*r+2, verbose=False) for i in range(0, n-1)]
-        # h_list_zz_list = [lc_group(h, i, i+1, 2*r, False) for i in range(0, n-1)]
-        tail_cmm_data = np.array([nested_commutator_norm(h_list_zz) for h_list_zz in h_list_zz_list])
-        err_bound = 2 * (sum(tail_cmm_data[:, 0])*dt**3/12 + sum(tail_cmm_data[:, 1])*dt**3/24) / (n-1)
-        # err_bound = 2 * (sum(tail_cmm_data['c1_zz'][n-1][r-1]) * dt**3 / 12 + sum(tail_cmm_data['c2_zz'][n-1][r-1]) * dt**3 / 24) / (n-1)
-    else:
-        raise ValueError('ob_type should be either single or multi')
-
-    return err_bound
-
-def nested_commutator_norm(h_list):
-    if len(h_list) == 2:
-        c1_cmm = commutator(h_list[1], commutator(h_list[1], h_list[0]).simplify()).simplify()
-        c2_cmm = commutator(h_list[0], commutator(h_list[0], h_list[1]).simplify()).simplify()
-        c1_cmm_norm = np.linalg.norm(c1_cmm.coeffs, ord=1)
-        c2_cmm_norm = np.linalg.norm(c2_cmm.coeffs, ord=1)
-    elif len(h_list) == 3:
-        c1_cmm_0 = commutator(h_list[1]+h_list[2], commutator(h_list[1]+h_list[2], h_list[0]).simplify()).simplify() 
-        c1_cmm_1 = commutator(h_list[2], commutator(h_list[2], h_list[1]).simplify()).simplify()
-        c2_cmm_0 = commutator(h_list[0], commutator(h_list[0], h_list[1]+h_list[2]).simplify()).simplify() 
-        c2_cmm_1 = commutator(h_list[1], commutator(h_list[1], h_list[2]).simplify()).simplify()
-        c1_cmm_norm = np.linalg.norm(c1_cmm_0.coeffs, ord=1) + np.linalg.norm(c1_cmm_1.coeffs, ord=1)
-        c2_cmm_norm = np.linalg.norm(c2_cmm_0.coeffs, ord=1) + np.linalg.norm(c2_cmm_1.coeffs, ord=1)
-    else:
-        raise Exception('Invalid number of terms in the Hamiltonian list')
-
-    return c1_cmm_norm, c2_cmm_norm
-
-def lc_nested_commutator_norm(i, h, r):
-    h_list_z  = lc_group(h, i, i, 2*r, False)
-    c1_cmm_z, c2_cmm_z = nested_commutator_norm(h_list_z) 
-
-    h_list_zz = lc_group(h, i, i+1, 2*r, False)
-    c1_cmm_zz, c2_cmm_zz = nested_commutator_norm(h_list_zz) 
-
-    return c1_cmm_z, c2_cmm_z, c1_cmm_zz, c2_cmm_zz
-
-# def process_data(i):
-#     # print(np.log(exp(i)))
-#     # random matrix of dim i
-#     m = np.random.rand(i, i)
-#     m_norm = np.linalg.norm(m, ord=1)
-#     print(i, m_norm)
-#     return m_norm
-
 def lc_group(h, right, left, step, verbose=False, legacy=False):
     if verbose: print(f'n={h.n}, right={right}, left={left}, step={step}')
     tail_tuples = []
@@ -451,3 +390,105 @@ def lc_group(h, right, left, step, verbose=False, legacy=False):
         odd_lc_terms  = SparsePauliOp.from_sparse_list(new_odd_lc_tuples, h.n).simplify()
 
         return [even_lc_terms, odd_lc_terms, tail_lc_terms]
+
+
+def nested_commutator_norm(h_list):
+    if len(h_list) == 2:
+        c1_cmm = commutator(h_list[1], commutator(h_list[1], h_list[0]).simplify()).simplify()
+        c2_cmm = commutator(h_list[0], commutator(h_list[0], h_list[1]).simplify()).simplify()
+        c1_cmm_norm = np.linalg.norm(c1_cmm.coeffs, ord=1)
+        c2_cmm_norm = np.linalg.norm(c2_cmm.coeffs, ord=1)
+    elif len(h_list) == 3:
+        c1_cmm_0 = commutator(h_list[1]+h_list[2], commutator(h_list[1]+h_list[2], h_list[0]).simplify()).simplify() 
+        c1_cmm_1 = commutator(h_list[2], commutator(h_list[2], h_list[1]).simplify()).simplify()
+        c2_cmm_0 = commutator(h_list[0], commutator(h_list[0], h_list[1]+h_list[2]).simplify()).simplify() 
+        c2_cmm_1 = commutator(h_list[1], commutator(h_list[1], h_list[2]).simplify()).simplify()
+        c1_cmm_norm = np.linalg.norm(c1_cmm_0.coeffs, ord=1) + np.linalg.norm(c1_cmm_1.coeffs, ord=1)
+        c2_cmm_norm = np.linalg.norm(c2_cmm_0.coeffs, ord=1) + np.linalg.norm(c2_cmm_1.coeffs, ord=1)
+    else:
+        raise Exception('Invalid number of terms in the Hamiltonian list')
+
+    return c1_cmm_norm, c2_cmm_norm
+
+import jax
+import jax.numpy as jnp
+from jax import jit, vmap
+
+import multiprocess as mp 
+# import multiprocessing as mp
+
+def lc_tail_bound(r, n, h, t, ob_type='singl', right=0, left=0, verbose=True):
+    err_bound = 0
+    dt = t/r
+    if verbose: print(f'index={n}, r={r}')
+
+    PROCESSES = 9
+    # j_values = jnp.arange(1, r+1)
+    if ob_type == 'singl':
+        # @jit
+        def process_item(j):
+            h_list_z = lc_group(h, right, left, 2*j, verbose=False, legacy=True)
+            c1_cmm_z, c2_cmm_z = nested_commutator_norm(h_list_z)
+            return 2 * (c1_cmm_z * dt**3 / 12 + c2_cmm_z * dt**3 / 24)
+
+        with mp.Pool(PROCESSES) as pool:
+            results = pool.map(process_item, range(1, r+1))
+
+        err_bound = sum(results)
+
+        # process_item_vmap = vmap(process_item)
+        # results = jax.device_get(process_item_vmap(j_values))
+        # err_bound = jnp.sum(results)
+        # err_bound = 0
+        # for j in range(1, r+1):
+        #     h_list_z  = lc_group(h, right, left, 2*j, verbose=False, legacy=True)
+        #     c1_cmm_z, c2_cmm_z = nested_commutator_norm(h_list_z) 
+        #     err_bound += 2 * (c1_cmm_z * dt**3 / 12 + c2_cmm_z * dt**3 / 24)
+        # # err_bound = 2 * r * (c1_cmm_z * dt**3 / 12 + c2_cmm_z * dt**3 / 24)
+    elif ob_type == 'multi_z':
+        # err_bound = 0
+        # for j in range(1, r+1):
+        #     h_list_z_list = [lc_group(h, i, i, 2*j+2, verbose=False) for i in range(0, n)]
+        #     # h_list_z_list = [lc_group(h, i, i, 4*r+1, False) for i in range(0, n)]
+        #     # h_list_z_list = [lc_group(h, i, i, 2*r, False) for i in range(0, n)]
+        #     tail_cmm_data = np.array([nested_commutator_norm(h_list_z) for h_list_z in h_list_z_list])
+        #     err_bound += 2 * (sum(tail_cmm_data[:, 0])*dt**3/12 + sum(tail_cmm_data[:, 1])*dt**3/24) / n
+        def process_item(j):
+            h_list_z_list = [lc_group(h, i, i, 2*j+2, verbose=False) for i in range(0, n)]
+            tail_cmm_data = np.array([nested_commutator_norm(h_list_z) for h_list_z in h_list_z_list])
+            return 2 * (sum(tail_cmm_data[:, 0])*dt**3/12 + sum(tail_cmm_data[:, 1])*dt**3/24) / n
+
+        with mp.Pool(PROCESSES) as pool:
+            results = pool.map(process_item, range(1, r+1))
+
+        err_bound = sum(results)
+    elif ob_type == 'multi_zz':
+        err_bound = 0
+        for j in range(1, r+1):
+            h_list_zz_list = [lc_group(h, i, i+1, 2*j+2, verbose=False) for i in range(0, n-1)]
+            # h_list_zz_list = [lc_group(h, i, i+1, 2*r, False) for i in range(0, n-1)]
+            tail_cmm_data = np.array([nested_commutator_norm(h_list_zz) for h_list_zz in h_list_zz_list])
+            err_bound += 2 * (sum(tail_cmm_data[:, 0])*dt**3/12 + sum(tail_cmm_data[:, 1])*dt**3/24) / (n-1)
+        # err_bound = 2 * (sum(tail_cmm_data['c1_zz'][n-1][r-1]) * dt**3 / 12 + sum(tail_cmm_data['c2_zz'][n-1][r-1]) * dt**3 / 24) / (n-1)
+    else:
+        raise ValueError('ob_type should be either single or multi')
+
+    return err_bound
+
+
+# def lc_nested_commutator_norm(i, h, r):
+#     h_list_z  = lc_group(h, i, i, 2*r, False)
+#     c1_cmm_z, c2_cmm_z = nested_commutator_norm(h_list_z) 
+
+#     h_list_zz = lc_group(h, i, i+1, 2*r, False)
+#     c1_cmm_zz, c2_cmm_zz = nested_commutator_norm(h_list_zz) 
+
+#     return c1_cmm_z, c2_cmm_z, c1_cmm_zz, c2_cmm_zz
+
+# def process_data(i):
+#     # print(np.log(exp(i)))
+#     # random matrix of dim i
+#     m = np.random.rand(i, i)
+#     m_norm = np.linalg.norm(m, ord=1)
+#     print(i, m_norm)
+#     return m_norm
