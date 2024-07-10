@@ -463,13 +463,22 @@ def lc_tail_bound(r, n, h, t, ob_type='singl', right=0, left=0, verbose=True):
 
         err_bound = sum(results)
     elif ob_type == 'multi_zz':
-        err_bound = 0
-        for j in range(1, r+1):
+        def process_item(j):
             h_list_zz_list = [lc_group(h, i, i+1, 2*j+2, verbose=False) for i in range(0, n-1)]
-            # h_list_zz_list = [lc_group(h, i, i+1, 2*r, False) for i in range(0, n-1)]
             tail_cmm_data = np.array([nested_commutator_norm(h_list_zz) for h_list_zz in h_list_zz_list])
-            err_bound += 2 * (sum(tail_cmm_data[:, 0])*dt**3/12 + sum(tail_cmm_data[:, 1])*dt**3/24) / (n-1)
-        # err_bound = 2 * (sum(tail_cmm_data['c1_zz'][n-1][r-1]) * dt**3 / 12 + sum(tail_cmm_data['c2_zz'][n-1][r-1]) * dt**3 / 24) / (n-1)
+            return 2 * (sum(tail_cmm_data[:, 0])*dt**3/12 + sum(tail_cmm_data[:, 1])*dt**3/24) / (n-1)
+
+        with mp.Pool(PROCESSES) as pool:
+            results = pool.map(process_item, range(1, r+1))
+
+        err_bound = sum(results)
+        # err_bound = 0
+        # for j in range(1, r+1):
+        #     h_list_zz_list = [lc_group(h, i, i+1, 2*j+2, verbose=False) for i in range(0, n-1)]
+        #     # h_list_zz_list = [lc_group(h, i, i+1, 2*r, False) for i in range(0, n-1)]
+        #     tail_cmm_data = np.array([nested_commutator_norm(h_list_zz) for h_list_zz in h_list_zz_list])
+        #     err_bound += 2 * (sum(tail_cmm_data[:, 0])*dt**3/12 + sum(tail_cmm_data[:, 1])*dt**3/24) / (n-1)
+        # # err_bound = 2 * (sum(tail_cmm_data['c1_zz'][n-1][r-1]) * dt**3 / 12 + sum(tail_cmm_data['c2_zz'][n-1][r-1]) * dt**3 / 24) / (n-1)
     else:
         raise ValueError('ob_type should be either single or multi')
 
