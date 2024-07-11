@@ -509,3 +509,20 @@ def lc_tail_bound(r, n, h, t, ob_type='singl', right=0, left=0, verbose=True):
 #     m_norm = np.linalg.norm(m, ord=1)
 #     print(i, m_norm)
 #     return m_norm
+
+def exp_count(r, n_qubits, factor, method, k=1):
+    n_terms = factor * n_qubits
+    if method == 'LC':
+        exp_count = 0
+        for i in range(1, r+1):
+            # print('i: ', i)
+            if i <= int((n_qubits-k)/2):
+                exp_count += (3*k + 6 * i) * factor / 2
+                # exp_count += (2*factor * i - 1+k) * 2    
+                # exp_count += (4 * i - 1) * 2    
+            else:
+                exp_count += n_terms * 1.5
+    elif method == 'ST':
+        exp_count = 1.5 * n_terms * r
+
+    return exp_count

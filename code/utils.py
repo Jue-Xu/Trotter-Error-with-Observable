@@ -17,10 +17,10 @@ from math import ceil, floor, exp
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import matplotlib.ticker as ticker
-
+from mpl_toolkits.axes_grid1.inset_locator import inset_axes
 from matplotlib.colors import ListedColormap
 
-color_cycle = ["#E64B35FF", "#47B167FF", "#0A75C7FF", "#F39B7FFF", "#70699eFF", "#4DBBD5FF", "#FFAA00FF"]
+color_cycle = ["#E64B35FF", "#47B167FF", "#0A75C7FF", "#F39B7FFF", "#70699eFF", "#4DBBD5FF", "#FFAA00FF", 'k']
 colors = mpl.cycler(color=color_cycle, alpha=[.9] * len(color_cycle)) 
 
 mpl.rc('axes', prop_cycle=colors)
@@ -79,7 +79,7 @@ def plot_fit(ax, x, y, var='t', x_offset=1.07, y_offset=1.0, label='', ext_x=[],
     if ext_x != []: x = ext_x
     y_pred_em = [exp(cost) for cost in a_em*np.array([log(n) for n in x]) + b_em]
     if label =='':
-        ax.plot(x, y_pred_em, 'k--', linewidth=1)
+        ax.plot(x, y_pred_em, 'k--', linewidth=2)
     else:
-        ax.plot(x, y_pred_em, 'k--', linewidth=1, label=label)
+        ax.plot(x, y_pred_em, 'k--', linewidth=2, label=label)
     ax.annotate(r'$O(%s^{%s})$' % (var, text_a_em), xy=(x[-1], np.real(y_pred_em)[-1]), xytext=(x[-1]*x_offset, np.real(y_pred_em)[-1]*y_offset))
