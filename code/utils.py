@@ -71,10 +71,12 @@ def linear_loglog_fit(x, y, verbose=False):
 
     return exp_y_pred, a, b
 
-def plot_fit(ax, x, y, var='t', x_offset=1.07, y_offset=1.0, label='', verbose=True):
+def plot_fit(ax, x, y, var='t', x_offset=1.07, y_offset=1.0, label='', ext_x=[], verbose=True):
     y_pred_em, a_em, b_em = linear_loglog_fit(x, y)
     if verbose: print(f'a_em: {a_em}; b_em: {b_em}')
     text_a_em = "{:.2f}".format(round(abs(a_em), 4))
+
+    if ext_x != []: x = ext_x
     y_pred_em = [exp(cost) for cost in a_em*np.array([log(n) for n in x]) + b_em]
     if label =='':
         ax.plot(x, y_pred_em, 'k--', linewidth=1)

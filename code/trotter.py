@@ -136,7 +136,10 @@ def measure_error(r, h_list, t, exact_U, type, rand_states=[], ob=None, pf_ord=2
         print('ob error (operator norm, largest eigen): ', ob_error, '; r:', r, '; t:', t)
         return ob_error
     elif type == 'worst_loose_bound':
-        return relaxed_st_bound(r, coeffs[1], coeffs[2], t, ob_type=coeffs[0])
+        if h_list:
+            return relaxed_st_bound(r, coeffs[1], coeffs[2], t, h_group=h_list, ob_type=coeffs[0])
+        else:
+            return relaxed_st_bound(r, coeffs[1], coeffs[2], t, ob_type=coeffs[0])
     elif type == 'lightcone_bound':
         return lc_tail_bound(r, coeffs[1], coeffs[2], t, ob_type=coeffs[0], right=coeffs[3], left=coeffs[4], verbose=False)
         # return relaxed_lc_bound(r, coeffs[1], coeffs[2], t, ob_type=coeffs[0], verbose=False)
