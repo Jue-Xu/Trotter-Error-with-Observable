@@ -10,11 +10,12 @@ Wenjun Yu, Jue Xu and Qi Zhao, 2024
 ## Short-time (light-cone)
 ![Figure](./figs/step.png)
 
-### Single local observable and Sum of local observables
+### Single local observable, sum of local observables and DQPT
 <!-- ![Figure](./figs/lightcone.png) -->
-<img src="./figs/lightcone.png" alt="drawing" width="400"/>
+<!-- <img src="./figs/dqpt.png" alt="drawing" width="400"/> -->
+![Figure](./figs/dqpt.png)
 
-More details in [short_time.ipynb](./code/short_time.ipynb) 
+More details in [short_time.ipynb](./code/short_time.ipynb) and [dqpt_lightcone.ipynb](./code/dqpt_lightcone.ipynb)
 
 ## Random-input (average-case error) with observables
 ![Figure](./figs/random.png)
