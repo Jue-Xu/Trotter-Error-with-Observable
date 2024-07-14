@@ -83,3 +83,9 @@ def plot_fit(ax, x, y, var='t', x_offset=1.07, y_offset=1.0, label='', ext_x=[],
     else:
         ax.plot(x, y_pred_em, 'k--', linewidth=2, label=label)
     ax.annotate(r'$O(%s^{%s})$' % (var, text_a_em), xy=(x[-1], np.real(y_pred_em)[-1]), xytext=(x[-1]*x_offset, np.real(y_pred_em)[-1]*y_offset))
+
+
+def find_closest_index(lst, value):
+    if len(lst) == 0:
+        return None
+    return min(range(len(lst)), key=lambda i: abs(lst[i] - value))
