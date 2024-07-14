@@ -114,9 +114,9 @@ class TF_Ising_1d:
 class Heisenberg_1d:
     def __init__(self, n: int, Jx=1, Jy=1, Jz=1, hx=0.2, hy=0.0, hz=0.0, pbc=False, verbose=False):
         self.n = n
-        self.xx_tuples = [('XX', [i, i + 1], Jx) for i in range(0, n-1)]
-        self.yy_tuples = [('YY', [i, i + 1], Jy) for i in range(0, n-1)]
-        self.zz_tuples = [('ZZ', [i, i + 1], Jz) for i in range(0, n-1)]
+        self.xx_tuples = [('XX', [i, i+1], Jx) for i in range(0, n-1)]
+        self.yy_tuples = [('YY', [i, i+1], Jy) for i in range(0, n-1)]
+        self.zz_tuples = [('ZZ', [i, i+1], Jz) for i in range(0, n-1)]
         self.x_tuples = [('X', [i], hx) for i in range(0, n)] 
         self.y_tuples = [('Y', [i], hy) for i in range(0, n)] 
         self.z_tuples = [('Z', [i], hz) for i in range(0, n)] 
