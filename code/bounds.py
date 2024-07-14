@@ -526,3 +526,10 @@ def exp_count(r, n_qubits, factor, method, k=1):
         exp_count = 1.5 * n_terms * r
 
     return exp_count
+
+
+def four_norm(ob):
+    ob = ob.to_matrix()
+    dim = ob.shape[0]
+    # print('d', d)
+    return (np.trace(ob @ ob @ ob @ ob)/dim)**(1/4)

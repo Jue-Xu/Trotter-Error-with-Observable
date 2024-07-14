@@ -89,3 +89,13 @@ def find_closest_index(lst, value):
     if len(lst) == 0:
         return None
     return min(range(len(lst)), key=lambda i: abs(lst[i] - value))
+
+from qiskit.quantum_info import random_statevector, Statevector, random_unitary
+
+def tensor_random_unitaries(n):
+    rand_U_list = [random_unitary(2).data for _ in range(n)]
+    global_random_U = rand_U_list[0]
+    for i in range(1, n):
+        global_random_U = np.kron(global_random_U, rand_U_list[i]) 
+    return global_random_U
+

@@ -166,7 +166,7 @@ def measure_error(r, h_list, t, exact_U, type, rand_states=[], ob=None, pf_ord=2
         appro_U = pf_r(h_list, t, r, order=pf_ord, use_jax=use_jax)
         err_list = [np.linalg.norm(np.outer(exact_U @ state.data.conj().T , (exact_U @ state.data.conj().T).conj().T) - np.outer(appro_U @ state.data.conj().T, (appro_U @ state.data.conj().T).conj().T), ord='nuc') for state in rand_states]
         # err_list = [np.linalg.norm((exact_U - pf_r(h_list, t, r, order=pf_ord, use_jax=use_jax)) @ state.data) for state in rand_states]
-        if type(ob) == list:
+        if isinstance(ob, list):
             ob_norm = sum([np.linalg.norm(o, ord=2) for o in ob])
         else:
             ob_norm = np.linalg.norm(ob, ord=2)
@@ -199,7 +199,7 @@ def measure_error(r, h_list, t, exact_U, type, rand_states=[], ob=None, pf_ord=2
         #     bound = 2 * tight_bound(h_list, 2, t, r, type='4') * (np.trace(ob @ ob @ ob @ ob)/d)**(1/4)
         # else:
         #     bound = np.sqrt(2) * tight_bound(h_list, 2, t, r, type='fro') * (sum([np.linalg.norm(ob, ord='fro') for ob in coeffs[0]])/(d+1)**(1/2)) 
-        if type(ob) == list:
+        if isinstance(ob, list):
             bound = np.sqrt(2) * tight_bound(h_list, 2, t, r, type='fro') * sum([np.linalg.norm(o, ord='fro') for o in ob])/(d+1)**(1/2) 
         else:
             bound = np.sqrt(2) * tight_bound(h_list, 2, t, r, type='fro') * np.linalg.norm(ob, ord='fro')/(d+1)**(1/2) 
@@ -209,8 +209,8 @@ def measure_error(r, h_list, t, exact_U, type, rand_states=[], ob=None, pf_ord=2
         approx_U = pf_r(h_list, t, r, order=pf_ord, use_jax=use_jax)
         exact_final_states = [exact_U @ state.data.T for state in rand_states]
         appro_final_states = [approx_U @ state.data.T for state in rand_states]
-        if type(ob) == list:
-            err_list = [sum([abs(appro_final_states[i].conj().T @ o @ appro_final_states[i] - exact_final_states[i].conj().T @ o @ exact_final_states[i]) for o in ob]) for i in range(len(rand_states))]
+        if isinstance(ob, list):
+            err_list = [sum([abs(appro_final_states[i].conj().T @ o.to_matrix() @ appro_final_states[i] - exact_final_states[i].conj().T @ o.to_matrix() @ exact_final_states[i]) for o in ob]) for i in range(len(rand_states))]
         else:
             err_list = [abs(appro_final_states[i].conj().T @ ob @ appro_final_states[i] - exact_final_states[i].conj().T @ ob @ exact_final_states[i]) for i in range(len(rand_states))]
         if return_error_list:
