@@ -13,7 +13,7 @@ Wenjun Yu, Jue Xu and Qi Zhao, 2024
 ### Single local observable, sum of local observables and DQPT
 <!-- ![Figure](./figs/lightcone.png) -->
 <!-- <img src="./figs/dqpt.png" alt="drawing" width="400"/> -->
-![Figure](./figs/dqpt.png)
+![Figure](./figs/lightcone_dqpt.png)
 
 More details in [short_time.ipynb](./code/short_time.ipynb) and [dqpt_lightcone.ipynb](./code/dqpt_lightcone.ipynb)
 
