@@ -2,9 +2,9 @@
 
 ![Figure](./figs/idea.png)
 <!-- <img src="./figs/idea.png" alt="drawing" width="600"/> -->
-[`Observable-Driven Speed-ups in Quantum Simulations`](https://arxiv.org/pdf/xxxx.pdf).
+[`Observable-Driven Speed-ups in Quantum Simulations`](https://arxiv.org/pdf/2407.14497.pdf).
 Wenjun Yu, Jue Xu and Qi Zhao, 2024
-[![https://arxiv.org/abs/xxxx](https://img.shields.io/badge/paper%20%28v1%29-arXiv%3A24xx.xxxxx-B31B1B)](https://arxiv.org/abs/xxxx)
+[![https://arxiv.org/abs/xxxx](https://img.shields.io/badge/paper%20%28v1%29-arXiv%3A2407.14497-B31B1B)](https://arxiv.org/abs/2407.14497)
 
 
 ## Short-time (light-cone)
