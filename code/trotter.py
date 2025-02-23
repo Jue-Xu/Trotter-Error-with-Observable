@@ -200,9 +200,9 @@ def measure_error(r, h_list, t, exact_U, type, rand_states=[], ob=None, pf_ord=2
         # else:
         #     bound = np.sqrt(2) * tight_bound(h_list, 2, t, r, type='fro') * (sum([np.linalg.norm(ob, ord='fro') for ob in coeffs[0]])/(d+1)**(1/2)) 
         if isinstance(ob, list):
-            bound = np.sqrt(2) * tight_bound(h_list, 2, t, r, type='fro') * sum([np.linalg.norm(o, ord='fro') for o in ob])/(d+1)**(1/2) 
+            bound = 2 * tight_bound(h_list, 2, t, r, type='fro') * sum([np.linalg.norm(o, ord='fro') for o in ob])/(d)**(1/2) 
         else:
-            bound = np.sqrt(2) * tight_bound(h_list, 2, t, r, type='fro') * np.linalg.norm(ob, ord='fro')/(d+1)**(1/2) 
+            bound = 2 * tight_bound(h_list, 2, t, r, type='fro') * np.linalg.norm(ob, ord='fro')/(d)**(1/2) 
         return bound
     # elif type == 'observable_empirical':
     elif type == 'average_ob_empirical':
